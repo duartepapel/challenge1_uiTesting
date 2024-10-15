@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('Should complete Challenge 1', async ({ page }) => {
+test.only('Should complete Challenge 1', async ({ page }) => {
   await page.goto('https://todomvc.com/examples/react/dist/')
   const realUrl = page.url();
   const expectedUrl = 'https://todomvc.com/examples/react/dist/'
@@ -20,9 +20,19 @@ test('Should complete Challenge 1', async ({ page }) => {
   await page.locator("#todo-input").press('Enter');
 
   const currentDayToDo = await page.locator("[data-testid='todo-item-toggle']").nth(0);
-  await currentDayToDo.click();
+  await currentDayToDo.click(); // strike no current day TODO
 
   const isStriked = await page.locator('[class="completed"]').isVisible();
   expect(isStriked).toBe(true);
-}
-)
+
+  // Hover para o botão de delete aparecer
+  const todoElement = await page.locator('li').nth(1);
+  await todoElement.hover();
+
+  const deleteButton = await page.locator("(//button[@class='destroy'])[2]");
+  await deleteButton.click(); // Click delete button
+
+  // Validar que o item foi apagado (botão de delete não existe)
+  const isDeleted = await deleteButton.isVisible();
+  expect(isDeleted).toBe(false);
+});
