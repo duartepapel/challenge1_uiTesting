@@ -6,13 +6,25 @@ export default defineConfig({
   fullyParallel: true,
   workers: 1,
   timeout: 30 * 1000,
-  retries: 0,
-  reporter: 'html',
+  retries: 1,
+  reporter: [
+    ["line"],
+    ['html'],
+    [
+      "allure-playwright",
+      {
+        resultsDir: "allure-results",
+      },
+    ],
+  ],
   expect: {
     timeout: 5000,
   },
   use: {
     browserName: 'chromium',
     headless: true,
+    screenshot: 'on',
+    video: 'on',
+    trace: 'on',
   },
 });
