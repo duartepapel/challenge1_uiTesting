@@ -6,6 +6,9 @@ This README provides instructions on how to set up and run automated tests for t
 
 Before you begin, ensure you have the following installed:
 
+- [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) 
+- A suitable Linux distribution installed in WSL2 (e.g., Ubuntu 20.04)
+- [Visual Studio Code](https://code.visualstudio.com/)
 - Node.js (v18 or later)
 - npm (usually comes with Node.js)
 - Git
@@ -13,8 +16,11 @@ Before you begin, ensure you have the following installed:
 ## Setup Instructions
 
 1. Clone the repository:
-   ```
-   - git clone git@github.com:duartepapel/challenge1_uiTesting.git <SSH> or git clone https://github.com/duartepapel/challenge1_uiTesting.git <HTTPS>
+   
+   ```bash
+   - git clone git@github.com:duartepapel/challenge1_uiTesting.git <SSH> 
+   or 
+   - git clone https://github.com/duartepapel/challenge1_uiTesting.git <HTTPS>
    - cd challenge1_uiTesting
    ```
 
