@@ -1,11 +1,10 @@
 import { Page, expect } from '@playwright/test';
 
-export class todoPage {
+export class TodoPage {
 
     private page: Page;
 
-    //locators
-
+    //selectors
     private url = "https://todomvc.com/examples/react/dist/";
     private inputBox = "#todo-input";
     private listItem = "label[data-testid='todo-item-label']";
@@ -26,25 +25,15 @@ export class todoPage {
         expect(realUrl).toBe(this.url); // Assert that the actual URL matches the expected URL
     }
 
-    async typeCurrentDate() {
-        const today = new Date(); // define varaible for today
-        const currentDay = today.toLocaleDateString(); // convert today into a readable string
-        await this.page.locator(this.inputBox).fill('TODO 1 - ' + currentDay);
-    }
-
-    async typeTomorrowDate() {
-        const today = new Date();
-        const tommorow = new Date();
-        tommorow.setDate(today.getDate() + 1); //define tommorow
-        const tommorowFormated = tommorow.toLocaleDateString(); //convert tommorow into a readable string
-        await this.page.locator(this.inputBox).fill('TODO 2 - ' + tommorowFormated);
+    async fillInput(input: string) {
+        await this.page.locator(this.inputBox).fill(input);
     }
 
     async pressEnter() {
         await this.page.locator(this.inputBox).press('Enter');
     }
 
-    //method allows to choose which item on the list to click    
+    // method allows to choose which item on the list to click    
     async strikeItem(itemNumber: number) {
         const listedItem = await this.page.locator(this.itemToggle).nth(itemNumber - 1); // cause it starts at index 0
         await listedItem.click(); // strike the item
@@ -52,9 +41,18 @@ export class todoPage {
         expect(isStriked).toBe(true);
     }
 
-    async itemExistsInTheList() {
-        const itemisListed = await this.page.locator(this.listItem).isVisible(); // store the selector in a variable
-        expect(itemisListed).toBe(true); // assert that it exists
+    // method that takes a string as an argument and compares it with the listed items
+    async itemExistsInTheList(expectedItem: string) {
+        const items = await this.page.locator(this.listItem); //store all locators with the 'listItem' selector value
+        const count = await items.count(); // count the locators
+
+        for (let i = 0; i < count; i++) {
+            const itemContent = await items.nth(i).textContent();
+            if (itemContent?.includes(expectedItem)) {
+                return true; //if item exists in the list 
+            }
+            else return false; //if item doesn't exist in the list 
+        }
     }
 
     async mouseHoverDelete(itemNumber: number) {
@@ -65,9 +63,14 @@ export class todoPage {
     async deleteItem(itemNumber: number) {
         const deleteButtonLocator = this.deleteButton(itemNumber); // create an object for the ith delete button locator
         const deleteButton = await this.page.locator(deleteButtonLocator)
-        await deleteButton.click(); // Click delete button
-        // validate that the item is deleted (if the delete button no longer exists)
-        const isDeleted = await deleteButton.isVisible();
-        expect(isDeleted).toBe(false);
+        await deleteButton.click();
+    }
+
+    public convertDate(date: Date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // because months are zero-indexed
+        const year = date.getFullYear();
+
+        return `${day}_${month}_${year}`
     }
 } 
