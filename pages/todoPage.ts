@@ -1,49 +1,40 @@
-import { Page, expect } from '@playwright/test';
+import { type Page, type Locator, expect } from '@playwright/test';
+import { url } from 'inspector';
+import { todo } from 'node:test';
 
 export class TodoPage {
+    private readonly inputBox: Locator;
+    private readonly todoItems: Locator;
+    private readonly toggleButton: Locator;
 
-    private page: Page;
-
-    //selectors
-    private url = "https://todomvc.com/examples/react/dist/";
-    private inputBox = "#todo-input";
-    private listItem = "label[data-testid='todo-item-label']";
-    private itemToggle = "[data-testid='todo-item-toggle']";
-    private strikedItem = "[class='completed']";
-    private listTag = "li";
-    private deleteButton = (itemNumber: number) => `(//button[@class='destroy'])[${itemNumber}]`;
-
-    constructor(page: Page) {
-        this.page = page;
+    constructor(public readonly page: Page) {
+        this.inputBox = this.page.getByTestId('text-input');
+        this.todoItems = this.page.getByTestId('todo-item-label');
+        this.toggleButton = this.page.getByTestId('todo-item-toggle');
     }
 
-    //actions
+    async goto() {
+        await this.page.goto('https://todomvc.com/examples/react/dist/');
+    }
 
-    async navigateToPage() {
-        await this.page.goto(this.url);
-        const realUrl = this.page.url(); // Get the actual URL
-        expect(realUrl).toBe(this.url); // Assert that the actual URL matches the expected URL
+    async validateURL() {
+        const expectedUrl = "https://todomvc.com/examples/react/dist/";
+        const actualUrl = this.page.url();
+
+        expect(expectedUrl).toBe(actualUrl);
     }
 
     async fillInput(input: string) {
-        await this.page.locator(this.inputBox).fill(input);
+        await this.inputBox.fill(input);
     }
 
-    async pressEnter() {
-        await this.page.locator(this.inputBox).press('Enter');
+    async pressEnterOnInput() {
+        await this.inputBox.press('Enter');
     }
 
-    // method allows to choose which item on the list to click    
-    async strikeItem(itemNumber: number) {
-        const listedItem = await this.page.locator(this.itemToggle).nth(itemNumber - 1); // cause it starts at index 0
-        await listedItem.click(); // strike the item
-        const isStriked = await this.page.locator(this.strikedItem).isVisible();
-        expect(isStriked).toBe(true);
-    }
-
-    // method that takes a string as an argument and compares it with the listed items
+    // method allows to verify that the inputted string exist in the list
     async itemExistsInTheList(expectedItem: string) {
-        const items = await this.page.locator(this.listItem); //store all locators with the 'listItem' selector value
+        const items = await this.todoItems; //store all locators with the 'listItem' selector value
         const count = await items.count(); // count the locators
 
         for (let i = 0; i < count; i++) {
@@ -55,14 +46,32 @@ export class TodoPage {
         }
     }
 
-    async mouseHoverDelete(itemNumber: number) {
-        const todoElement = await this.page.locator(this.listTag).nth(itemNumber - 1);
-        await todoElement.hover();
+    // method allows to choose which item on the list to strike and validate that it is striked    
+    async strikeItem(text: string) {
+        const count = await this.todoItems.count();  // Get the count of all todo items
+
+        for (let i = 0; i < count; i++) {
+            const itemContent = await this.todoItems.nth(i).textContent();
+
+            // Check if the current item's text matches the provided string
+            if (itemContent?.includes(text)) {
+                // Find the corresponding checkbox using the same index
+                const toggleCheckbox = this.toggleButton.nth(i);
+                await toggleCheckbox.click();  // Click to strike the item
+
+                // Verify if the item is marked as completed by checking if its parent has the "completed" class
+                const itemParentOnTheDom = toggleCheckbox.locator('..').locator('..');  // Go up to the parent <li> element
+                const isCompleted = await itemParentOnTheDom.getAttribute('class');  // Get the string value of the class attribute
+
+                expect(isCompleted).toContain('completed');  // Validate the item is marked as completed
+            }
+        }
     }
 
-    async deleteItem(itemNumber: number) {
-        const deleteButtonLocator = this.deleteButton(itemNumber); // create an object for the ith delete button locator
-        const deleteButton = await this.page.locator(deleteButtonLocator)
+    async remove(text: string) {
+        const todo = this.todoItems.filter({ hasText: text }); // Locate the todo item that contains the inputted text
+        const deleteButton = todo.locator('..').getByTestId('todo-item-button'); // Find the closest parent element, then locate the destroy button within that parent
+        await todo.hover(); // Hover over the todo item to reveal the destroy button
         await deleteButton.click();
     }
 
@@ -73,4 +82,4 @@ export class TodoPage {
 
         return `${day}_${month}_${year}`
     }
-} 
+}
