@@ -7,11 +7,11 @@ This README provides instructions on how to set up and run automated tests for t
 Before you begin, ensure you have the following installed:
 
 - [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) 
-- A suitable Linux distribution installed in WSL2 (e.g., Ubuntu 20.04)
+- [A suitable Linux distribution installed in WSL2 (e.g., Ubuntu 20.04)](https://documentation.ubuntu.com/wsl/en/latest/guides/install-ubuntu-wsl2/)
 - [Visual Studio Code](https://code.visualstudio.com/)
-- Node.js (v18 or later)
-- npm (usually comes with Node.js)
-- Git
+- [Node.js](https://nodejs.org/en/learn/getting-started/how-to-install-nodejs) [(v18 or later)](https://nodejs.org/en/download/package-manager)
+- [npm - usually comes with Node.js](https://monovm.com/blog/install-npm-on-ubuntu/), but verify it by typing `npm --version` on the terminal
+- [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
 ## Setup Instructions
 
