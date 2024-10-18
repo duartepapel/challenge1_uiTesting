@@ -34,7 +34,7 @@ export class TodoPage {
 
     // method allows to verify that the inputted string exist in the list
     async itemExistsInTheList(expectedItem: string) {
-        const items = await this.todoItems; //store all locators with the 'listItem' selector value
+        const items = await this.todoItems; //store all locators with the 'todoItems' selector value
         const count = await items.count(); // count the locators
 
         for (let i = 0; i < count; i++) {
@@ -48,11 +48,12 @@ export class TodoPage {
 
     // method allows to choose which item on the list to strike and validate that it is striked    
     async strikeItem(text: string) {
-        const count = await this.todoItems.count();  // Get the count of all todo items
+        const items = await this.todoItems; //store all locators with the 'todoItems' selector value
+        const count = await this.todoItems.count();  // Count the locators
+
 
         for (let i = 0; i < count; i++) {
-            const itemContent = await this.todoItems.nth(i).textContent();
-
+            const itemContent = await items.nth(i).textContent();
             // Check if the current item's text matches the provided string
             if (itemContent?.includes(text)) {
                 // Find the corresponding checkbox using the same index
