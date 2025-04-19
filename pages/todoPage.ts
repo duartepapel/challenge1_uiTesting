@@ -1,6 +1,4 @@
 import { type Page, type Locator, expect } from '@playwright/test';
-import { url } from 'inspector';
-import { todo } from 'node:test';
 
 export class TodoPage {
     private readonly inputBox: Locator;
@@ -19,7 +17,7 @@ export class TodoPage {
 
     async validateURL() {
         const expectedUrl = "https://todomvc.com/examples/react/dist/";
-        const actualUrl = this.page.url();
+        const actualUrl = await this.page.url(); // Add 'await' here
 
         expect(expectedUrl).toBe(actualUrl);
     }
@@ -33,7 +31,7 @@ export class TodoPage {
     }
 
     // method allows to verify that the inputted string exist in the list
-    async itemExistsInTheList(expectedItem: string) {
+    async itemExistsInTheList(expectedItem: string): Promise<boolean> {
         const items = await this.todoItems; //store all locators with the 'todoItems' selector value
         const count = await items.count(); // count the locators
 
@@ -42,8 +40,8 @@ export class TodoPage {
             if (itemContent?.includes(expectedItem)) {
                 return true; //if item exists in the list 
             }
-            else return false; //if item doesn't exist in the list 
         }
+        return false; // If no match is found after checking all items, return false
     }
 
     // method allows to choose which item on the list to strike and validate that it is striked    
@@ -74,13 +72,5 @@ export class TodoPage {
         const deleteButton = todo.locator('..').getByTestId('todo-item-button'); // Find the closest parent element, then locate the destroy button within that parent
         await todo.hover(); // Hover over the todo item to reveal the destroy button
         await deleteButton.click();
-    }
-
-    public convertDate(date: Date) {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // because months are zero-indexed
-        const year = date.getFullYear();
-
-        return `${day}_${month}_${year}`
     }
 }
