@@ -32,16 +32,21 @@ export class TodoPage {
 
     // method allows to verify that the inputted string exist in the list
     async itemExistsInTheList(expectedItem: string): Promise<boolean> {
-        const items = await this.todoItems; //store all locators with the 'todoItems' selector value
-        const count = await items.count(); // count the locators
+        try {
+            const items = await this.todoItems;
+            const count = await items.count();
 
-        for (let i = 0; i < count; i++) {
-            const itemContent = await items.nth(i).textContent();
-            if (itemContent?.includes(expectedItem)) {
-                return true; //if item exists in the list 
+            for (let i = 0; i < count; i++) {
+                const itemContent = await items.nth(i).textContent();
+                if (itemContent?.includes(expectedItem)) {
+                    return true;
+                }
             }
+            return false;
+        } catch (error) {
+            console.error(`Error checking if item exists: ${error}`);
+            return false;
         }
-        return false; // If no match is found after checking all items, return false
     }
 
     // method allows to choose which item on the list to strike and validate that it is striked    
